@@ -1,0 +1,1451 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>NER SMART LOGISTICS // 3D TACTICAL CONSOLE</title>
+    
+    <!-- GOOGLE FONTS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Outfit:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+
+
+    <style>
+        :root {
+            --bg-deep: #070a12;
+            --bg-panel: rgba(13, 18, 28, 0.92);
+            --glass-border: rgba(16, 185, 129, 0.35);
+            --glass-glow: rgba(16, 185, 129, 0.15);
+            --neon-cyan: #34d399;
+            --neon-blue: #10b981;
+            --neon-green: #10b981;
+            --neon-red: #ef4444;
+            --neon-amber: #f59e0b;
+            --neon-purple: #c084fc;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --text-dim: #94a3b8;
+            
+            --font-head: 'Outfit', sans-serif;
+            --font-data: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+        
+        html, body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-head);
+            overflow: hidden;
+            height: 100vh; width: 100vw;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- BACKGROUND PARTICLES (PASS-THROUGH NO POINTER EVENTS) --- */
+        #bg-canvas-3d {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+            pointer-events: none !important;
+        }
+        .cyber-grid-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+            pointer-events: none !important;
+            background: 
+                radial-gradient(circle at 75% 35%, rgba(16, 185, 129, 0.08) 0%, transparent 60%),
+                radial-gradient(circle at 25% 75%, rgba(59, 130, 246, 0.06) 0%, transparent 60%),
+                linear-gradient(rgba(3, 7, 18, 0.88), rgba(3, 7, 18, 0.88));
+        }
+
+        #app-wrapper {
+            display: flex; height: 100vh; width: 100vw;
+            position: relative; z-index: 10; overflow: hidden;
+        }
+
+        /* --- SIDE NAVIGATION BAR --- */
+        #side-nav {
+            width: 250px; min-width: 250px; height: 100%;
+            background: rgba(11, 15, 25, 0.96);
+            backdrop-filter: blur(20px);
+            border-right: 2px solid var(--glass-border);
+            display: flex; flex-direction: column;
+            padding: 20px 14px; gap: 12px;
+            z-index: 9900;
+            box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6);
+        }
+
+        #side-nav {
+            width: 275px; min-width: 275px; height: 100%;
+            background: rgba(6, 12, 26, 0.96);
+            backdrop-filter: blur(25px);
+            border-right: 2px solid rgba(56, 189, 248, 0.35);
+            display: flex; flex-direction: column;
+            padding: 22px 16px; gap: 14px;
+            z-index: 9900;
+            box-shadow: 12px 0 40px rgba(0, 0, 0, 0.7);
+        }
+
+        .brand-block {
+            padding: 0 4px 18px;
+            border-bottom: 2px solid var(--glass-border);
+            margin-bottom: 8px;
+        }
+        .brand-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-family: var(--font-data); font-size: 10px; font-weight: 800;
+            color: var(--neon-cyan); background: rgba(16, 185, 129, 0.15);
+            border: 1px solid var(--neon-cyan); border-radius: 4px;
+            padding: 3px 8px; margin-bottom: 8px; letter-spacing: 1.5px;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); text-transform: uppercase;
+        }
+        .brand-title {
+            font-size: 34px; font-weight: 900; line-height: 1.15; margin: 4px 0; letter-spacing: 1px;
+            background: linear-gradient(135deg, #ffffff 0%, #34d399 50%, #818cf8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-transform: uppercase; line-height: 1.15;
+            filter: drop-shadow(0 0 15px rgba(56, 189, 248, 0.5));
+        }
+        .brand-sub {
+            font-size: 11px; color: var(--neon-cyan); font-family: var(--font-data);
+            letter-spacing: 2px; font-weight: 800; margin-top: 6px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sub-pulse {
+            width: 7px; height: 7px; border-radius: 50%; background: var(--neon-cyan);
+            box-shadow: 0 0 10px var(--neon-cyan); animation: pulseDot 1.5s infinite;
+        }
+
+        /* --- SIDE NAV TAB BUTTONS --- */
+        .nav-tab {
+            width: 100%; border: 1.5px solid transparent; background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted); font-family: var(--font-head); font-weight: 800; font-size: 14px;
+            padding: 14px 16px; border-radius: 10px; cursor: pointer;
+            display: flex; align-items: center; gap: 12px; text-transform: uppercase;
+            letter-spacing: 0.5px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .nav-tab .nav-icon { font-size: 22px; filter: drop-shadow(0 0 8px #10b981); }
+        .nav-tab:hover {
+            color: #fff; background: rgba(16, 185, 129, 0.15);
+            border-color: rgba(56, 189, 248, 0.5); transform: translateX(6px);
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.2);
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff; border-color: var(--neon-cyan);
+            box-shadow: 0 6px 25px rgba(5, 150, 105, 0.5);
+            transform: translateX(6px);
+        }
+
+        .status-badge {
+            font-family: var(--font-data); font-size: 11px; font-weight: 800;
+            padding: 10px 14px; border: 1px solid var(--neon-green);
+            color: var(--neon-green); background: rgba(16, 185, 129, 0.15);
+            border-radius: 20px; text-transform: uppercase;
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.35);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .status-pulse {
+            width: 8px; height: 8px; border-radius: 50%; background: var(--neon-green);
+            box-shadow: 0 0 10px var(--neon-green); animation: pulseDot 1.5s infinite;
+        }
+        @keyframes pulseDot { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.4; } }
+
+        /* --- RIGHT CONTENT AREA & SMOOTH SCROLLING ENABLER --- */
+        #main-content {
+            flex: 1; height: 100vh; position: relative; overflow-y: auto !important;
+            box-sizing: border-box;
+        }
+
+        .content-view {
+            width: 100%; min-height: 100%; position: absolute; inset: 0;
+            display: none; box-sizing: border-box; overflow-y: auto !important;
+            padding-bottom: 40px;
+        }
+        .content-view.active { display: block; }
+
+        /* GLOWING NEON RIGHT-SIDE SCROLLBAR */
+        .content-view::-webkit-scrollbar,
+        #main-content::-webkit-scrollbar,
+        .page-scroll-container::-webkit-scrollbar {
+            width: 10px !important;
+        }
+        .content-view::-webkit-scrollbar-track,
+        #main-content::-webkit-scrollbar-track,
+        .page-scroll-container::-webkit-scrollbar-track {
+            background: rgba(11, 15, 25, 0.8) !important;
+        }
+        .content-view::-webkit-scrollbar-thumb,
+        #main-content::-webkit-scrollbar-thumb,
+        .page-scroll-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--neon-cyan), #059669) !important;
+            border-radius: 6px !important;
+            box-shadow: 0 0 10px var(--neon-cyan) !important;
+        }
+
+        /* --- VIEW 1: LIVE MAP --- */
+        #view-map { width: 100%; height: 100%; position: relative; z-index: 10; }
+        #root { width: 100%; height: 100%; position: absolute; inset: 0; z-index: 5; }
+
+        .map-route-bar {
+            position: absolute; top: 20px; right: 20px; z-index: 1000;
+            display: flex; gap: 10px; background: rgba(11, 15, 25, 0.92);
+            backdrop-filter: blur(12px); padding: 8px 12px; border-radius: 12px;
+            border: 1.5px solid var(--glass-border); box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+        }
+        .map-route-btn {
+            background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff; font-family: var(--font-head); font-weight: 800; font-size: 12px;
+            padding: 8px 14px; border-radius: 8px; cursor: pointer; transition: all 0.3s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .map-route-btn:hover { background: rgba(16, 185, 129, 0.2); border-color: var(--neon-cyan); }
+        .map-route-btn.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border-color: var(--neon-cyan); color: #ffffff;
+            box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4);
+        }
+
+        /* --- LIVE MAP VEHICLE PHOTO STRIP --- */
+        .map-vehicle-bar {
+            position: absolute; bottom: 20px; left: 20px; right: 20px; z-index: 1000;
+            background: rgba(6, 12, 26, 0.92); backdrop-filter: blur(16px);
+            border: 1.5px solid var(--glass-border); border-radius: 14px;
+            padding: 10px 14px; box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6);
+        }
+        .mvb-title {
+            font-family: var(--font-data); font-size: 11px; font-weight: 800;
+            color: var(--neon-cyan); letter-spacing: 1px; margin-bottom: 8px;
+            display: flex; align-items: center; gap: 6px; text-transform: uppercase;
+        }
+        .mvb-scroll {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+        }
+        .mvb-scroll::-webkit-scrollbar { height: 6px; }
+        .mvb-scroll::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.5); }
+        .mvb-scroll::-webkit-scrollbar-thumb { background: linear-gradient(90deg, var(--neon-cyan), #059669); border-radius: 4px; }
+        
+        .mvb-item {
+            flex: 0 0 140px; cursor: pointer; position: relative; border-radius: 8px;
+            border: 1.5px solid rgba(255, 255, 255, 0.1); overflow: hidden;
+            background: rgba(15, 23, 42, 0.8); transition: all 0.25s ease;
+        }
+        .mvb-item:hover {
+            border-color: var(--neon-cyan); transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        .mvb-img {
+            width: 100%; height: 75px; object-fit: cover; display: block;
+        }
+        .mvb-label {
+            font-size: 10px; font-family: var(--font-data); font-weight: 800;
+            color: #ffffff; text-align: center; padding: 4px 2px;
+            background: rgba(13, 18, 28, 0.95); letter-spacing: 0.5px;
+        }
+
+        /* --- SCROLLABLE PAGES FOR VEHICLES & DASHBOARD --- */
+        .page-scroll-container {
+            width: 100%; min-height: 100%; padding: 28px; overflow-y: auto !important;
+            display: flex; flex-direction: column; gap: 24px;
+            box-sizing: border-box; padding-bottom: 60px;
+        }
+
+        .glass-panel {
+            background: var(--bg-panel);
+            border: 1.5px solid var(--glass-border);
+            border-radius: 14px;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        .panel-header {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 14px;
+        }
+        .panel-title {
+            font-size: 25px; font-weight: 900; color: #fff;
+            display: flex; align-items: center; gap: 12px;
+            text-transform: uppercase; letter-spacing: 0.8px;
+            background: linear-gradient(135deg, #ffffff 0%, #7dd3fc 60%, #34d399 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.4));
+        }
+        .panel-title span.icon { font-size: 28px; -webkit-text-fill-color: initial; filter: drop-shadow(0 0 10px var(--neon-cyan)); }
+
+        /* --- VEHICLE GRID & SPATIAL CARDS --- */
+        .vehicle-page-grid {
+            display: grid; grid-template-columns: 260px 1fr; gap: 20px;
+        }
+        #radar-container {
+            position: relative; width: 100%; height: 240px;
+            background: rgba(3, 7, 18, 0.9); border: 1.5px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px; overflow: hidden;
+            box-shadow: inset 0 0 20px rgba(16, 185, 129, 0.15);
+        }
+        #radar3d { width: 100%; height: 100%; }
+
+        .vehicle-cards-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;
+        }
+
+        .v-card {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px; padding: 16px;
+            position: relative; transform-style: preserve-3d;
+            transition: transform 0.25s ease, box-shadow 0.3s ease, border-color 0.3s;
+            cursor: pointer;
+        }
+        .v-card:hover {
+            transform: perspective(800px) rotateX(4deg) rotateY(-4deg) translateZ(10px);
+            box-shadow: 0 12px 30px rgba(16, 185, 129, 0.25);
+            border-color: var(--neon-cyan);
+            background: rgba(16, 185, 129, 0.12);
+        }
+
+        .v-card.drone { border-left: 4px solid var(--neon-cyan); }
+        .v-card.car { border-left: 4px solid var(--neon-green); }
+        .v-card.dispatched { border-left: 4px solid var(--neon-red); }
+
+        .v-thumb {
+            width: 100%; height: 135px; object-fit: cover;
+            border-radius: 8px; border: 1.5px solid rgba(56, 189, 248, 0.3);
+            margin: 8px 0 10px 0; background: rgba(15, 23, 42, 0.9);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        .v-card:hover .v-thumb {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 18px rgba(16, 185, 129, 0.4);
+        }
+
+        .v-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .v-name { font-weight: 800; font-size: 14px; color: #ffffff; letter-spacing: 0.5px; }
+        .v-badge { 
+            font-size: 10px; font-family: var(--font-data); padding: 3px 8px; font-weight: 800;
+            background: rgba(0, 0, 0, 0.6); border-radius: 4px; color: var(--neon-cyan);
+            border: 1px solid var(--neon-cyan); text-transform: uppercase;
+        }
+        .v-badge.warn { color: var(--neon-amber); border-color: var(--neon-amber); }
+        .v-badge.danger { color: var(--neon-red); border-color: var(--neon-red); }
+        .v-badge.purple { color: var(--neon-purple); border-color: var(--neon-purple); }
+
+        .v-desc { font-size: 12px; color: var(--text-muted); font-family: var(--font-data); margin-bottom: 6px; font-weight: 500; }
+        .v-gps { font-size: 11px; color: var(--neon-green); font-family: var(--font-data); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+
+        .prog-track { width: 100%; height: 5px; background: rgba(255, 255, 255, 0.12); margin-top: 8px; position: relative; border-radius: 3px; overflow: hidden; }
+        .prog-fill { height: 100%; background: linear-gradient(90deg, #10b981, var(--neon-cyan)); box-shadow: 0 0 10px var(--neon-cyan); width: 0%; transition: width 1s ease; }
+        .prog-fill.low { background: linear-gradient(90deg, #b91c1c, var(--neon-red)); box-shadow: 0 0 10px var(--neon-red); }
+
+        /* --- CYBER TABS --- */
+        .cyber-tabs { display: flex; gap: 8px; margin-bottom: 18px; background: rgba(0, 0, 0, 0.5); padding: 4px; border-radius: 8px; width: 340px; }
+        .cyber-tab {
+            flex: 1; border: none; background: transparent; color: var(--text-dim);
+            font-family: var(--font-head); font-weight: 800; font-size: 13px;
+            padding: 8px; cursor: pointer; text-transform: uppercase; border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .cyber-tab.active { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4); }
+        .cyber-tab:hover:not(.active) { color: #fff; background: rgba(255, 255, 255, 0.08); }
+
+        /* --- ACTION BUTTONS --- */
+        .action-btn {
+            width: 100%; border: none; padding: 14px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff; font-family: var(--font-head); font-weight: 800; font-size: 14px;
+            text-transform: uppercase; letter-spacing: 1px; border-radius: 8px;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 4px 20px rgba(5, 150, 105, 0.4);
+            transition: all 0.3s ease; margin-top: 16px;
+        }
+        .action-btn:hover { filter: brightness(1.2); box-shadow: 0 6px 25px rgba(16, 185, 129, 0.6); transform: translateY(-2px); }
+        .action-btn.secondary {
+            background: transparent; border: 2px solid var(--neon-cyan); color: var(--neon-cyan); box-shadow: none;
+        }
+        .action-btn.secondary:hover { background: rgba(16, 185, 129, 0.15); }
+
+        /* --- ROUTE CARDS GRID --- */
+        .route-page-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; margin-bottom: 18px; }
+        .route-card {
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 18px; border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px; cursor: pointer; background: rgba(15, 23, 42, 0.7);
+            transition: all 0.3s ease; height: 130px;
+        }
+        .route-card:hover { background: rgba(16, 185, 129, 0.1); border-color: var(--neon-cyan); }
+        .route-card.active { border-color: var(--neon-cyan); background: rgba(16, 185, 129, 0.15); box-shadow: 0 0 20px rgba(16, 185, 129, 0.2); }
+        .route-title { font-weight: 800; font-size: 15px; color: #fff; text-transform: uppercase; }
+        .route-sub { font-size: 12px; color: var(--text-muted); font-family: var(--font-data); margin-top: 6px; }
+        .route-alt { font-size: 13px; font-family: var(--font-data); color: var(--neon-amber); font-weight: 800; margin-top: auto; }
+
+        .progress-box { margin-top: 14px; }
+        .pb-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--neon-cyan); margin-bottom: 6px; font-family: var(--font-data); font-weight: 700; }
+        .pb-track { height: 10px; background: rgba(0,0,0,0.6); border-radius: 5px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+        .pb-fill { height: 100%; background: linear-gradient(90deg, #10b981, var(--neon-cyan)); width: 0%; transition: width 0.3s ease; box-shadow: 0 0 10px var(--neon-cyan); }
+
+        /* --- MODAL DIALOGS FOR VEHICLE INSPECTION --- */
+        .modal-overlay {
+            display: none; position: fixed; inset: 0; z-index: 10000;
+            background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(14px);
+            align-items: center; justify-content: center; padding: 20px;
+        }
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-card {
+            background: rgba(13, 18, 28, 0.95); border: 2px solid var(--neon-cyan);
+            border-radius: 16px; width: 100%; max-width: 520px; padding: 24px;
+            box-shadow: 0 20px 60px rgba(16, 185, 129, 0.3); color: #fff;
+            position: relative;
+        }
+
+        /* --- OFFLINE BANNER --- */
+        #sw-offline-banner {
+            display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
+            background: linear-gradient(90deg, #b91c1c, #ef4444);
+            color: #fff; text-align: center; padding: 10px;
+            font-family: var(--font-data); font-size: 12px; font-weight: 800; text-transform: uppercase;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5); letter-spacing: 1px;
+        }
+
+        /* --- PWA CARD --- */
+        #pwa-install-container {
+            display: none; position: fixed; bottom: 24px; right: 24px; z-index: 9990;
+            width: 340px; background: rgba(11, 15, 25, 0.95);
+            border: 2px solid var(--neon-cyan); border-radius: 12px;
+            padding: 20px; color: #fff; box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+        }
+        #pwa-install-container.show { display: block; animation: slideUp 0.4s ease; }
+        @keyframes slideUp { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    </style>
+  <script type="module" crossorigin src="/assets/index-BKjzpV0x.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-D_jmP4id.css">
+</head>
+<body>
+
+    <!-- 3D WebGL Canvas Scene (Pass-through no clicks intercepted) -->
+    <canvas id="bg-canvas-3d"></canvas>
+    <div class="cyber-grid-overlay"></div>
+
+    <!-- Offline Banner -->
+    <div id="sw-offline-banner">⚠️ MOUNTAIN PASS OFFLINE MODE ACTIVE — CACHED MAPS & TELEMETRY ONLY</div>
+
+    <!-- APP WRAPPER (SIDE NAV + INTERACTIVE MAP & VIEWS) -->
+    <div id="app-wrapper">
+        
+        <!-- SIDE NAVIGATION BAR -->
+        <nav id="side-nav">
+            <div class="brand-block">
+                <div class="brand-badge"><span>⚡</span> TACTICAL CONSOLE</div>
+                <div class="brand-title">NER SMART LOGISTICS</div>
+                <div class="brand-sub"><span class="sub-pulse"></span> CONSOLE HUD v4.5</div>
+            </div>
+
+            <!-- SIDE MENU OPTIONS -->
+            <button class="nav-tab active" onclick="switchSideTab('map')" id="nav-tab-map">
+                <span class="nav-icon">🗺️</span> Live Map
+            </button>
+            <button class="nav-tab" onclick="switchSideTab('vehicles')" id="nav-tab-vehicles">
+                <span class="nav-icon">🛸</span> Vehicles (Drones & Cars)
+            </button>
+            <button class="nav-tab" onclick="switchSideTab('dashboard')" id="nav-tab-dashboard">
+                <span class="nav-icon">📊</span> Dashboard & Corridors
+            </button>
+
+            <!-- Bottom System Status -->
+            <div style="margin-top:auto; padding-top:14px; border-top:1px solid rgba(255,255,255,0.1);">
+                <div class="status-badge"><span class="status-pulse"></span> PWA OFFLINE READY</div>
+                <div style="text-align:center; font-family:var(--font-data); font-size:11px; color:var(--neon-cyan); margin-top:10px; font-weight:bold;" id="clock">00:00:00</div>
+            </div>
+        </nav>
+
+        <!-- RIGHT CONTENT AREA WITH FULL SMOOTH SCROLLING ENABLER -->
+        <main id="main-content">
+            
+            <!-- OPTION 1: LIVE MAP VIEW (100% INTERACTIVE & UNINTERRUPTED SCROLL/PAN/ZOOM) -->
+            <div id="view-map" class="content-view active">
+                
+                <!-- Floating Quick Route Bar directly on Live Map -->
+                <div class="map-route-bar">
+                    <button class="map-route-btn active" onclick="selectMapRoute('nathula')" id="mbtn-nathula">
+                        <span>🏔️</span> Sikkim Nathu La (14,140 ft)
+                    </button>
+                    <button class="map-route-btn" onclick="selectMapRoute('tawang')" id="mbtn-tawang">
+                        <span>🏔️</span> Arunachal Sela Pass (13,700 ft)
+                    </button>
+                    <button class="map-route-btn" onclick="selectMapRoute('dawki')" id="mbtn-dawki">
+                        <span>🌧️</span> Meghalaya Dawki (4,900 ft)
+                    </button>
+                    <button class="map-route-btn" onclick="toggleVoiceAssistant()" id="btn-voice-toggle" style="background:linear-gradient(135deg, #059669, #10b981); color:#fff; font-weight:bold;">
+                        <span>🔊</span> Voice Nav: ON
+                    </button>
+                </div>
+
+                <!-- Leaflet Live Map Root Canvas -->
+                <div id="root"></div>
+            </div>
+
+            <!-- OPTION 2: VEHICLES FLEET VIEW (DRONES & TRUCKS) (FULL SMOOTH RIGHT-SIDE SCROLL) -->
+            <div id="view-vehicles" class="content-view">
+                <div class="page-scroll-container">
+                    <div class="glass-panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><span class="icon">🚛</span> Northeast Fleet Telematics &amp; Rescue Convoy</div>
+                            <span style="font-size:12px; color:var(--neon-green); font-family:var(--font-data); font-weight:800;">11 UNITS ACTIVE (5 Core Logistics Trucks + 6 Aerial Drones)</span>
+                        </div>
+
+                        <div class="cyber-tabs">
+                            <button class="cyber-tab active" onclick="filterVehicles('all')">All Fleet (11)</button>
+                            <button class="cyber-tab" onclick="filterVehicles('car')">Trucks &amp; Convoys (5)</button>
+                            <button class="cyber-tab" onclick="filterVehicles('drone')">Air Drones (6)</button>
+                        </div>
+
+                        <div class="vehicle-page-grid">
+                            <!-- 3D RADAR CANVAS -->
+                            <div id="radar-container">
+                                <canvas id="radar3d" width="260" height="240"></canvas>
+                            </div>
+
+                            <!-- VEHICLE CARDS GRID -->
+                            <div id="ner-vehicle-list" class="vehicle-cards-grid">
+
+                                <!-- VEHICLE 1: AS-01-EC-9082 -->
+                                <div class="v-card car" onclick="inspectVehicle('AS-01-EC-9082', 'Assam Medical Transport Hub | 5,000 Doses Cold-Chain Vaccines', 'SURFACE', 'Guwahati Cargo Depot → NEIGRIHMS Shillong', '96%', '/assets/vehicles/medicine_truck.jpg', '46 km/h', '1h 15m', '4.1°C')">
+                                    <div class="v-header"><span class="v-name">🚚 AS-01-EC-9082</span><span class="v-badge">LOW RISK</span></div>
+                                    <div class="v-desc" style="color:var(--neon-cyan); font-weight:bold;">Assam Medical Transport Hub</div>
+                                    <img src="/assets/medicine_truck-IATKPJpY.jpg" class="v-thumb" alt="AS-01-EC-9082 Assam Medical Transport" />
+                                    <div class="v-desc">📦 CARGO: 5,000 Doses Cold-Chain Vaccines</div>
+                                    <div class="v-desc">🗺️ ROUTE: Guwahati Cargo Depot → NEIGRIHMS Shillong</div>
+                                    <div class="v-gps" style="margin-top:6px;">⚡ SPEED: 46 km/h &bull; ETA: 1h 15m &bull; COLD CHAIN: 4.1°C</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 96%"></div></div>
+                                </div>
+
+                                <!-- VEHICLE 2: AS-01-OX-4011 -->
+                                <div class="v-card car" onclick="inspectVehicle('AS-01-OX-4011', 'Northeast Medical Oxygen Supply | Liquid Medical Oxygen (18T)', 'SURFACE', 'Numaligarh O₂ Plant → GMCH Guwahati', '98%', '/assets/vehicles/oxygen_tanker.jpg', '54 km/h', '2h 10m', '-182.4°C')">
+                                    <div class="v-header"><span class="v-name">❄️ AS-01-OX-4011</span><span class="v-badge">LOW RISK</span></div>
+                                    <div class="v-desc" style="color:var(--neon-cyan); font-weight:bold;">Northeast Medical Oxygen Supply</div>
+                                    <img src="/assets/oxygen_tanker-TgFE03PK.jpg" class="v-thumb" alt="AS-01-OX-4011 Oxygen Supply" />
+                                    <div class="v-desc">📦 CARGO: Liquid Medical Oxygen (18T)</div>
+                                    <div class="v-desc">🗺️ ROUTE: Numaligarh O₂ Plant → GMCH Guwahati</div>
+                                    <div class="v-gps" style="margin-top:6px;">⚡ SPEED: 54 km/h &bull; ETA: 2h 10m &bull; COLD CHAIN: -182.4°C</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 98%"></div></div>
+                                </div>
+
+                                <!-- VEHICLE 3: NL-01-FC-7721 -->
+                                <div class="v-card car dispatched" onclick="inspectVehicle('NL-01-FC-7721', 'FCI Essential Commodities Transport | Essential Food Grains (24T)', 'SURFACE', 'Dimapur Depot → Imphal FCI Warehouse', '78%', '/assets/vehicles/food_grain_truck.jpg', '38 km/h', '4h 30m', 'N/A')">
+                                    <div class="v-header"><span class="v-name">🌾 NL-01-FC-7721</span><span class="v-badge warn">MEDIUM RISK</span></div>
+                                    <div class="v-desc" style="color:var(--neon-amber); font-weight:bold;">FCI Essential Commodities Transport</div>
+                                    <img src="/assets/food_grain_truck-B-fsgOO4.jpg" class="v-thumb" alt="NL-01-FC-7721 FCI Food Grains" />
+                                    <div class="v-desc">📦 CARGO: Essential Food Grains (24T)</div>
+                                    <div class="v-desc">🗺️ ROUTE: Dimapur Depot → Imphal FCI Warehouse</div>
+                                    <div class="v-gps" style="margin-top:6px;">⚡ SPEED: 38 km/h &bull; ETA: 4h 30m &bull; ON ROUTE</div>
+                                    <div class="prog-track"><div class="prog-fill low" style="width: 78%"></div></div>
+                                </div>
+
+                                <!-- VEHICLE 4: TR-01-GC-3019 -->
+                                <div class="v-card car" onclick="inspectVehicle('TR-01-GC-3019', 'Tripura Infrastructure Freight | Solar Power Infrastructure', 'SURFACE', 'Silchar Hub → Agartala Park', '92%', '/assets/vehicles/solar_cargo_truck.jpg', '52 km/h', '3h 45m', 'N/A')">
+                                    <div class="v-header"><span class="v-name">☀️ TR-01-GC-3019</span><span class="v-badge">LOW RISK</span></div>
+                                    <div class="v-desc" style="color:var(--neon-cyan); font-weight:bold;">Tripura Infrastructure Freight</div>
+                                    <img src="/assets/solar_cargo_truck-CtLShKEj.jpg" class="v-thumb" alt="TR-01-GC-3019 Tripura Freight" />
+                                    <div class="v-desc">📦 CARGO: Solar Power Infrastructure</div>
+                                    <div class="v-desc">🗺️ ROUTE: Silchar Hub → Agartala Park</div>
+                                    <div class="v-gps" style="margin-top:6px;">⚡ SPEED: 52 km/h &bull; ETA: 3h 45m &bull; ON ROUTE</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 92%"></div></div>
+                                </div>
+
+                                <!-- VEHICLE 5: AS-09-PL-8834 -->
+                                <div class="v-card car" onclick="inspectVehicle('AS-09-PL-8834', 'Indian Oil Energy Carrier | Petroleum Fuel (20 KL)', 'SURFACE', 'Numaligarh Refinery → Itanagar Depot', '89%', '/assets/vehicles/petroleum_tanker.jpg', '58 km/h', '3h 15m', 'N/A')">
+                                    <div class="v-header"><span class="v-name">⛽ AS-09-PL-8834</span><span class="v-badge">LOW RISK</span></div>
+                                    <div class="v-desc" style="color:var(--neon-cyan); font-weight:bold;">Indian Oil Energy Carrier</div>
+                                    <img src="/assets/petroleum_tanker-DlHR_JcJ.jpg" class="v-thumb" alt="AS-09-PL-8834 Indian Oil Tanker" />
+                                    <div class="v-desc">📦 CARGO: Petroleum Fuel (20 KL)</div>
+                                    <div class="v-desc">🗺️ ROUTE: Numaligarh Refinery → Itanagar Depot</div>
+                                    <div class="v-gps" style="margin-top:6px;">⚡ SPEED: 58 km/h &bull; ETA: 3h 15m &bull; ON ROUTE</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 89%"></div></div>
+                                </div>
+
+                                <!-- DRONES (6 UNITS) -->
+                                <div class="v-card drone" onclick="inspectVehicle('NER-DRONE-01', 'SkyLifter VTOL Medical Drop', '12,500 FT', 'Nathu La Sector 4', '88%', '/assets/vehicles/drone_vtol.jpg')">
+                                    <div class="v-header"><span class="v-name">🛸 NER-DRONE-01</span><span class="v-badge">VTOL MEDICAL</span></div>
+                                    <img src="/assets/drone_vtol-C847ipX7.jpg" class="v-thumb" alt="VTOL Medical Delivery Drone" />
+                                    <div class="v-desc">SKYLIFTER HEAVY VTOL MEDICAL DROP | 12,500 FT</div>
+                                    <div class="v-gps">📍 NATHU LA SECTOR 4 &bull; GPS LIVE</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 88%"></div></div>
+                                </div>
+
+                                <div class="v-card drone" onclick="inspectVehicle('NER-DRONE-02', 'HawkEye 4K Thermal SAR', '14,000 FT', 'Sela Pass Ridge', '94%', '/assets/vehicles/drone_vtol.jpg')">
+                                    <div class="v-header"><span class="v-name">🛸 NER-DRONE-02</span><span class="v-badge warn">FLIR SAR</span></div>
+                                    <img src="/assets/drone_vtol-C847ipX7.jpg" class="v-thumb" alt="HawkEye FLIR Thermal SAR Drone" />
+                                    <div class="v-desc">HAWKEYE 4K THERMAL | 14,000 FT</div>
+                                    <div class="v-gps">📍 SELA PASS RIDGE &bull; THERMAL ACTIVE</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 94%"></div></div>
+                                </div>
+
+                                <div class="v-card drone" onclick="inspectVehicle('NER-DRONE-03', 'Stratospheric Mesh Relay', '11,200 FT', 'Zuluk Valley', '76%', '/assets/vehicles/drone_vtol.jpg')">
+                                    <div class="v-header"><span class="v-name">🛸 NER-DRONE-03</span><span class="v-badge purple">5G RELAY</span></div>
+                                    <img src="/assets/drone_vtol-C847ipX7.jpg" class="v-thumb" alt="Stratospheric 5G Mesh Relay Drone" />
+                                    <div class="v-desc">STRATOSPHERIC MESH | 11,200 FT</div>
+                                    <div class="v-gps">📍 ZULUK VALLEY &bull; SIGNAL RELAY</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 76%"></div></div>
+                                </div>
+
+                                <div class="v-card drone" onclick="inspectVehicle('NER-DRONE-04', 'StormScout Weather LIDAR', '15,200 FT', 'Tawang Heights', '91%', '/assets/vehicles/drone_vtol.jpg')">
+                                    <div class="v-header"><span class="v-name">🛸 NER-DRONE-04</span><span class="v-badge">WEATHER LIDAR</span></div>
+                                    <img src="/assets/drone_vtol-C847ipX7.jpg" class="v-thumb" alt="StormScout Weather LIDAR Drone" />
+                                    <div class="v-desc">STORMSCOUT HIGH-ALT SENSING | 15,200 FT</div>
+                                    <div class="v-gps">📍 TAWANG HEIGHTS &bull; SCANNING</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 91%"></div></div>
+                                </div>
+
+                                <div class="v-card drone" onclick="inspectVehicle('NER-DRONE-05', 'AeroCargo Avalanche Pod', '13,800 FT', 'Gangtok Base', '82%', '/assets/vehicles/drone_vtol.jpg')">
+                                    <div class="v-header"><span class="v-name">🛸 NER-DRONE-05</span><span class="v-badge warn">FREIGHT CARGO</span></div>
+                                    <img src="/assets/drone_vtol-C847ipX7.jpg" class="v-thumb" alt="AeroCargo Avalanche Supply Pod Drone" />
+                                    <div class="v-desc">AEROCARGO AVALANCHE POD | 13,800 FT</div>
+                                    <div class="v-gps">📍 GANGTOK BASE &bull; STANDBY</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 82%"></div></div>
+                                </div>
+
+                                <div class="v-card drone" onclick="inspectVehicle('NER-DRONE-06', 'MicroScout Terrain 3D', '9,800 FT', 'Cherrapunji Pass', '96%', '/assets/vehicles/drone_vtol.jpg')">
+                                    <div class="v-header"><span class="v-name">🛸 NER-DRONE-06</span><span class="v-badge">3D SCANNER</span></div>
+                                    <img src="/assets/drone_vtol-C847ipX7.jpg" class="v-thumb" alt="MicroScout Terrain 3D Scanner Drone" />
+                                    <div class="v-desc">MICROSCOUT TERRAIN 3D | 9,800 FT</div>
+                                    <div class="v-gps">📍 CHERRAPUNJI PASS &bull; SLOPE SCAN</div>
+                                    <div class="prog-track"><div class="prog-fill" style="width: 96%"></div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button id="ner-dispatch-btn" class="action-btn" onclick="dispatchFleetVehicle()">
+                            ⚡ Dispatch Fleet & Sync Telemetry to PWA Storage
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OPTION 3: DASHBOARD & CORRIDORS VIEW (FULL SMOOTH RIGHT-SIDE SCROLL) -->
+            <div id="view-dashboard" class="content-view">
+                <div class="page-scroll-container">
+                    <div class="glass-panel">
+                        <div class="panel-header">
+                            <div class="panel-title"><span class="icon">📊</span> Command Dashboard & Rescue Corridors</div>
+                            <span style="font-size:12px; color:var(--neon-cyan); font-family:var(--font-data); font-weight:800;">3 MOUNTAIN PASS CORRIDORS</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; font-family: var(--font-data);">
+                            SELECT A MOUNTAIN PASS CORRIDOR TO PRE-CACHE MAP TILES FOR OFFLINE PWA NAVIGATION.
+                        </div>
+
+                        <div id="route-list" class="route-page-grid">
+                            <div class="route-card active" onclick="selectRoute('nathula')" id="route-nathula">
+                                <div>
+                                    <div class="route-title">🏔️ SIKKIM PASS CORRIDOR</div>
+                                    <div class="route-sub">GANGTOK → CHANGU → NATHU LA</div>
+                                </div>
+                                <div class="route-alt">ELEVATION: 14,140 FT</div>
+                            </div>
+
+                            <div class="route-card" onclick="selectRoute('tawang')" id="route-tawang">
+                                <div>
+                                    <div class="route-title">🏔️ ARUNACHAL CONVOY</div>
+                                    <div class="route-sub">DIRANG → SELA PASS → TAWANG</div>
+                                </div>
+                                <div class="route-alt">ELEVATION: 13,700 FT</div>
+                            </div>
+
+                            <div class="route-card" onclick="selectRoute('dawki')" id="route-dawki">
+                                <div>
+                                    <div class="route-title">🌧️ MEGHALAYA MONSOON</div>
+                                    <div class="route-sub">SHILLONG → CHERRAPUNJI → DAWKI</div>
+                                </div>
+                                <div class="route-alt">ELEVATION: 4,900 FT</div>
+                            </div>
+                        </div>
+
+                        <button id="ner-precache-btn" class="action-btn secondary" onclick="precacheSelectedRouteTiles()">
+                            📥 Pre-Cache Selected Mountain Pass Map Tiles
+                        </button>
+
+                        <div id="ner-precache-progress" class="progress-box" style="display:none;">
+                            <div class="pb-label">
+                                <span id="precache-status-text">DOWNLOADING TILES...</span>
+                                <span id="precache-percent-text">0%</span>
+                            </div>
+                            <div class="pb-track"><div id="precache-bar-fill" class="pb-fill"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- VEHICLE TELEMETRY INSPECTION MODAL -->
+    <div id="vehicle-modal" class="modal-overlay" onclick="closeVehicleModal(event)">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:14px;">
+                <div style="font-weight:900; font-size:18px; color:var(--neon-cyan);" id="m-vname">NER-TRUCK-01</div>
+                <button onclick="closeVehicleModalDirect()" style="background:none; border:none; color:#aaa; font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+            <!-- REALISTIC VEHICLE PHOTO THUMBNAIL -->
+            <div style="position:relative; overflow:hidden; border-radius:10px; margin-bottom:14px; border:1.5px solid var(--neon-cyan); box-shadow:0 6px 20px rgba(16,185,129,0.3);">
+                <img id="m-vimg" src="/assets/medical_truck-DinldTtf.jpg" style="width:100%; height:180px; object-fit:cover; display:block;" alt="Vehicle Photo" />
+                <div style="position:absolute; bottom:0; left:0; right:0; background:linear-gradient(transparent, rgba(3,7,18,0.95)); padding:8px 12px; font-family:var(--font-data); font-size:11px; color:var(--neon-green); font-weight:bold;">
+                    📍 LIVE RECON PHOTO &bull; TELEMETRY SYNCED
+                </div>
+            </div>
+            <div style="font-size:14px; font-weight:800; color:#fff; font-family:var(--font-head); margin-bottom:4px;" id="m-vdesc">SKYLIFTER HEAVY VTOL DROP</div>
+            <div style="font-size:12px; color:var(--neon-green); font-family:var(--font-data); margin-bottom:14px;" id="m-vgps">📍 NATHU LA SECTOR 4</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+                <div style="background:rgba(15,23,42,0.8); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                    <div style="font-size:10px; color:var(--text-dim);">SPEED & ETA</div>
+                    <div style="font-size:14px; font-weight:800; color:#fff;" id="m-valt">12,500 FT</div>
+                </div>
+                <div style="background:rgba(15,23,42,0.8); padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.08);">
+                    <div style="font-size:10px; color:var(--text-dim);">COLD CHAIN / FUEL</div>
+                    <div style="font-size:14px; font-weight:800; color:var(--neon-cyan);" id="m-vbat">88%</div>
+                </div>
+            </div>
+
+            <!-- MULTI-ROUTE SELECTION & AUTO-SHORTEST ROUTE PANEL -->
+            <div style="background:rgba(15,23,42,0.9); border:1.5px solid rgba(16,185,129,0.3); border-radius:10px; padding:12px; margin-bottom:14px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <div style="font-size:12px; font-weight:800; color:var(--neon-cyan); font-family:var(--font-head);">🔀 MULTI-ROUTE HIGHWAY OPTIONS</div>
+                    <span style="font-size:10px; background:rgba(16,185,129,0.2); color:#10b981; border:1px solid #10b981; padding:2px 8px; border-radius:12px; font-weight:bold;">⚡ SHORTEST AUTO-SELECTED</span>
+                </div>
+                <div id="m-route-options" style="display:flex; flex-direction:column; gap:8px;">
+                    <!-- Dynamically populated route options -->
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS: GOOGLE MAPS API & VOICE NAVIGATION ASSISTANT -->
+            <div style="display:flex; flex-direction:column; gap:8px;">
+                <a id="m-gmaps-link" href="#" target="_blank" class="action-btn" style="text-decoration:none; text-align:center; display:block; background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; font-weight:bold; font-size:13px;">
+                    🗺️ Open in Google Maps Directions API
+                </a>
+                <button onclick="speakCurrentRoute()" class="action-btn" style="background:linear-gradient(135deg, #10b981, #059669); color:#ffffff; font-weight:bold; font-size:13px; cursor:pointer;">
+                    🔊 Start Live Voice Navigation Assistant
+                </button>
+            </div>
+            <button class="action-btn" onclick="closeVehicleModalDirect()">✅ CLOSE TELEMETRY INSPECTION</button>
+        </div>
+    </div>
+
+    <!-- PWA INSTALL CARD -->
+    <div id="pwa-install-container">
+        <h3 style="margin:0 0 10px; color:var(--neon-cyan); font-size:16px; font-weight:800;">📲 INSTALL PWA APP</h3>
+        <p style="font-size:12px; color:var(--text-muted); margin-bottom:14px; line-height:1.5;">Install PWA to home screen for offline mountain pass tile caching & telemetry sync.</p>
+        <div style="display:flex; gap:10px;">
+            <button id="pwa-install-btn" class="action-btn" style="flex:1; font-size:12px; padding:10px;">INSTALL</button>
+            <button id="pwa-later-btn" style="background:rgba(255,255,255,0.1); border:none; color:var(--text-muted); flex:1; cursor:pointer; font-size:12px; border-radius:8px; font-weight:bold;">LATER</button>
+        </div>
+    </div>
+
+    <script>
+        // PERSIST & RESTORE TAB STATE ON PAGE RELOAD (F5)
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedTab = localStorage.getItem('ner_active_side_tab') || 'map';
+            switchSideTab(savedTab);
+        });
+
+        // SIDE NAV SWITCHER LOGIC
+        function switchSideTab(tabName) {
+            localStorage.setItem('ner_active_side_tab', tabName);
+
+            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+            const activeBtn = document.getElementById('nav-tab-' + tabName);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            document.querySelectorAll('.content-view').forEach(view => view.classList.remove('active'));
+            const activeView = document.getElementById('view-' + tabName);
+            if (activeView) activeView.classList.add('active');
+
+            // Trigger Leaflet map resize update so tiles render 100% full screen
+            setTimeout(() => {
+                window.dispatchEvent(new Event('resize'));
+            }, 100);
+        }
+
+        // QUICK MAP ROUTE SELECTOR LOGIC
+        function selectMapRoute(routeId) {
+            document.querySelectorAll('.map-route-btn').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById('mbtn-' + routeId);
+            if (activeBtn) activeBtn.classList.add('active');
+            selectRoute(routeId);
+        }
+
+        // VEHICLE PHOTO DICTIONARY & METRICS LOOKUP
+        const vehiclePhotos = {
+            'AS-01-EC-9082': '/assets/vehicles/medicine_truck.jpg',
+            'AS-01-OX-4011': '/assets/vehicles/oxygen_tanker.jpg',
+            'NL-01-FC-7721': '/assets/vehicles/food_grain_truck.jpg',
+            'TR-01-GC-3019': '/assets/vehicles/solar_cargo_truck.jpg',
+            'AS-09-PL-8834': '/assets/vehicles/petroleum_tanker.jpg',
+            'NER-DRONE-01': '/assets/vehicles/drone_vtol.jpg',
+            'NER-DRONE-02': '/assets/vehicles/drone_vtol.jpg',
+            'NER-DRONE-03': '/assets/vehicles/drone_vtol.jpg',
+            'NER-DRONE-04': '/assets/vehicles/drone_vtol.jpg',
+            'NER-DRONE-05': '/assets/vehicles/drone_vtol.jpg',
+            'NER-DRONE-06': '/assets/vehicles/drone_vtol.jpg'
+        };
+
+        // VEHICLE MODAL INSPECTION
+        
+        // MULTI-ROUTE DATABASE & AUTO SHORTEST ROUTE ENGINE
+        const vehicleMultiRoutes = {
+            'AS-01-EC-9082': {
+                origin: 'Guwahati Cargo Depot',
+                destination: 'NEIGRIHMS Shillong',
+                routes: [
+                    { id: 'r1', name: 'Route A: NH-27 Mountain Highway', dist: '104.2 km', eta: '1h 25m', desc: 'Standard express corridor via Jorabat & Nongpoh', isShortest: false },
+                    { id: 'r2', name: 'Route B: GS Road Direct Cutoff', dist: '89.4 km', eta: '1h 15m', desc: '⚡ SHORTEST ROUTE: Direct mountain cutoff saves 14.8 km', isShortest: true },
+                    { id: 'r3', name: 'Route C: Shillong Bypass SH-BYP', dist: '114.8 km', eta: '1h 30m', desc: 'All-weather resilient bypass avoiding city traffic', isShortest: false }
+                ]
+            },
+            'AS-01-OX-4011': {
+                origin: 'Numaligarh O2 Plant',
+                destination: 'GMCH Guwahati',
+                routes: [
+                    { id: 'r1', name: 'Route A: NH-27 East-West Expressway', dist: '242.0 km', eta: '3h 10m', desc: 'Standard heavy logistics corridor', isShortest: false },
+                    { id: 'r2', name: 'Route B: Kaziranga Express Route', dist: '218.6 km', eta: '2h 45m', desc: '⚡ SHORTEST ROUTE: Direct arterial saves 23.4 km', isShortest: true },
+                    { id: 'r3', name: 'Route C: Nagaon Bypass Link', dist: '255.4 km', eta: '3h 25m', desc: 'High-altitude flood-shielded detour', isShortest: false }
+                ]
+            },
+            'NL-01-FC-7721': {
+                origin: 'Dimapur Depot',
+                destination: 'Imphal FCI Warehouse',
+                routes: [
+                    { id: 'r1', name: 'Route A: NH-02 Kohima Mountain Pass', dist: '212.0 km', eta: '4h 50m', desc: 'Standard steep pass corridor', isShortest: false },
+                    { id: 'r2', name: 'Route B: Maram-Senapati Cutoff', dist: '194.2 km', eta: '4h 15m', desc: '⚡ SHORTEST ROUTE: Mountain valley link saves 17.8 km', isShortest: true },
+                    { id: 'r3', name: 'Route C: Senapati Ridge Bypass', dist: '228.5 km', eta: '5h 10m', desc: 'Heavy payload low-incline bypass', isShortest: false }
+                ]
+            },
+            'TR-01-GC-3019': {
+                origin: 'Silchar Hub',
+                destination: 'Agartala Park',
+                routes: [
+                    { id: 'r1', name: 'Route A: NH-208 Direct Arterial', dist: '265.0 km', eta: '4h 30m', desc: 'Standard state highway freight corridor', isShortest: false },
+                    { id: 'r2', name: 'Route B: Dharmanagar Express Route', dist: '241.8 km', eta: '3h 45m', desc: '⚡ SHORTEST ROUTE: Direct plains cutoff saves 23.2 km', isShortest: true },
+                    { id: 'r3', name: 'Route C: Churaibari Valley Link', dist: '278.2 km', eta: '4h 55m', desc: 'Reinforced heavy equipment route', isShortest: false }
+                ]
+            },
+            'AS-09-PL-8834': {
+                origin: 'Numaligarh Refinery',
+                destination: 'Itanagar Depot',
+                routes: [
+                    { id: 'r1', name: 'Route A: NH-27 / NH-415 Banderdewa Link', dist: '188.0 km', eta: '3h 40m', desc: 'Standard refinery tanker route', isShortest: false },
+                    { id: 'r2', name: 'Route B: Harmuti Express Corridor', dist: '169.5 km', eta: '3h 15m', desc: '⚡ SHORTEST ROUTE: Direct border corridor saves 18.5 km', isShortest: true },
+                    { id: 'r3', name: 'Route C: Gohpur North Bypass', dist: '196.4 km', eta: '3h 50m', desc: 'Disaster-resistant high-elevation bypass', isShortest: false }
+                ]
+            }
+        };
+
+        // VOICE NAVIGATION ASSISTANT ENGINE (WEB SPEECH SYNTHESIS API)
+        let currentActiveVehicleId = 'AS-01-EC-9082';
+        let currentSelectedRouteName = 'Route B: GS Road Direct Cutoff';
+
+        function speakText(text) {
+            if (!('speechSynthesis' in window)) {
+                console.warn('Web Speech API not supported in this browser.');
+                return;
+            }
+            window.speechSynthesis.cancel(); // Stop any active speech
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function speakCurrentRoute() {
+            const data = vehicleMultiRoutes[currentActiveVehicleId] || vehicleMultiRoutes['AS-01-EC-9082'];
+            const text = `Voice Navigation initialized for vehicle ${currentActiveVehicleId} from ${data.origin} to ${data.destination}. ${currentSelectedRouteName} is selected. Proceed on route. Maintain safe speed and cold-chain compliance.`;
+            speakText(text);
+        }
+
+        function selectMultiRoute(vId, routeId, rName, rDist, rEta) {
+            currentSelectedRouteName = rName;
+            
+            // Update UI selected highlight
+            const options = document.querySelectorAll('.m-route-card');
+            options.forEach(opt => {
+                opt.style.borderColor = 'rgba(255,255,255,0.1)';
+                opt.style.background = 'rgba(15,23,42,0.6)';
+            });
+            const selEl = document.getElementById(`m-route-${routeId}`);
+            if (selEl) {
+                selEl.style.borderColor = 'var(--neon-green)';
+                selEl.style.background = 'rgba(16,185,129,0.15)';
+            }
+
+            // Voice announcement of route selection
+            speakText(`Switched to ${rName}. Distance ${rDist}. Estimated travel time ${rEta}.`);
+        }
+
+        function inspectVehicle(name, desc, alt, gps, bat, imgUrl, speed, eta, coldChain) {
+            currentActiveVehicleId = name;
+            document.getElementById('m-vname').innerText = name;
+            document.getElementById('m-vdesc').innerText = desc;
+            document.getElementById('m-valt').innerText = `${speed} | ETA: ${eta}`;
+            document.getElementById('m-vgps').innerText = `📍 ${gps}`;
+            
+            const batEl = document.getElementById('m-vbat');
+            if (batEl) {
+                batEl.innerText = coldChain && coldChain !== 'N/A' ? `${bat} | COLD: ${coldChain}` : bat;
+            }
+
+            const photoPath = imgUrl || vehiclePhotos[name] || '/assets/vehicles/medicine_truck.jpg';
+            const imgEl = document.getElementById('m-vimg');
+            if (imgEl) imgEl.src = photoPath;
+
+            // Render Multi-Route Options & Auto-Select Shortest Route
+            const routeData = vehicleMultiRoutes[name] || {
+                origin: gps.split('→')[0] || 'Origin Hub',
+                destination: gps.split('→')[1] || 'Destination Hub',
+                routes: [
+                    { id: 'r1', name: 'Route A: Primary Express Highway', dist: '105 km', eta: '1h 25m', desc: 'Standard express highway', isShortest: false },
+                    { id: 'r2', name: 'Route B: Direct Shortest Cutoff', dist: '89 km', eta: '1h 12m', desc: '⚡ SHORTEST ROUTE (AUTO SELECTED)', isShortest: true },
+                    { id: 'r3', name: 'Route C: All-Weather Bypass', dist: '118 km', eta: '1h 35m', desc: 'Low-risk resilient bypass', isShortest: false }
+                ]
+            };
+
+            const optionsContainer = document.getElementById('m-route-options');
+            if (optionsContainer) {
+                let htmlStr = '';
+                routeData.routes.forEach(r => {
+                    const isSelected = r.isShortest; // Auto-select shortest route by default
+                    if (isSelected) currentSelectedRouteName = r.name;
+
+                    htmlStr += `
+                        <div id="m-route-${r.id}" class="m-route-card" onclick="selectMultiRoute('${name}', '${r.id}', '${r.name}', '${r.dist}', '${r.eta}')" style="background:${isSelected ? 'rgba(16,185,129,0.15)' : 'rgba(15,23,42,0.6)'}; border:1.5px solid ${isSelected ? 'var(--neon-green)' : 'rgba(255,255,255,0.1)'}; border-radius:8px; padding:8px 12px; cursor:pointer; transition:all 0.2s ease;">
+                            <div style="display:flex; justify-space-between; align-items:center;">
+                                <div style="font-weight:800; font-size:12px; color:${isSelected ? '#10b981' : '#fff'};">${r.name}</div>
+                                ${r.isShortest ? '<span style="background:#10b981; color:#000; font-size:9px; font-weight:900; padding:2px 6px; border-radius:4px;">AUTO SHORTEST</span>' : ''}
+                            </div>
+                            <div style="display:flex; justify-content:space-between; margin-top:4px; font-size:11px; color:var(--text-muted); font-family:var(--font-data);">
+                                <span>📏 DISTANCE: <strong style="color:#fff;">${r.dist}</strong></span>
+                                <span>⏱️ ETA: <strong style="color:var(--neon-cyan);">${r.eta}</strong></span>
+                            </div>
+                            <div style="font-size:10px; color:${r.isShortest ? '#34d399' : 'var(--text-dim)'}; margin-top:3px;">${r.desc}</div>
+                        </div>
+                    `;
+                });
+                optionsContainer.innerHTML = htmlStr;
+            }
+
+            // Update Google Maps Directions Link
+            const gmapsBtn = document.getElementById('m-gmaps-link');
+            if (gmapsBtn) {
+                const originQuery = encodeURIComponent(routeData.origin);
+                const destQuery = encodeURIComponent(routeData.destination);
+                gmapsBtn.href = `https://www.google.com/maps/dir/?api=1&origin=${originQuery}&destination=${destQuery}&travelmode=driving`;
+            }
+
+            // Auto Voice Greeting for Selected Vehicle & Shortest Route
+            const shortestRoute = routeData.routes.find(r => r.isShortest) || routeData.routes[0];
+            speakText(`Inspecting vehicle ${name}. Shortest route auto selected: ${shortestRoute.name}. Distance ${shortestRoute.dist}.`);
+
+            document.getElementById('vehicle-modal').classList.add('active');
+        }
+
+        function closeVehicleModal(e) {
+            if (e.target.id === 'vehicle-modal') {
+                document.getElementById('vehicle-modal').classList.remove('active');
+            }
+        }
+        function closeVehicleModalDirect() {
+            document.getElementById('vehicle-modal').classList.remove('active');
+        }
+
+        // CLOCK
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toISOString().split('T')[1].split('.')[0];
+        }, 1000);
+
+        // ADVANCED 3D SPATIAL BACKGROUND & PERSPECTIVE GRID SCENE
+        (function initBgCanvas3D() {
+            const canvas = document.getElementById('bg-canvas-3d');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w, h;
+            let gridOffset = 0;
+            let scanY = 0;
+            let mouseX = 0, mouseY = 0;
+            let targetMouseX = 0, targetMouseY = 0;
+
+            function resize() {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            window.addEventListener('mousemove', (e) => {
+                targetMouseX = (e.clientX / window.innerWidth - 0.5) * 40;
+                targetMouseY = (e.clientY / window.innerHeight - 0.5) * 40;
+            });
+            resize();
+
+            // 3D Particles Node Array
+            const particles = [];
+            const particleCount = 110;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push({
+                    x: (Math.random() - 0.5) * w * 1.5,
+                    y: (Math.random() - 0.5) * h * 1.5,
+                    z: Math.random() * 800 + 100,
+                    vx: (Math.random() - 0.5) * 0.5,
+                    vy: (Math.random() - 0.5) * 0.5,
+                    vz: (Math.random() - 0.5) * 0.8,
+                    size: Math.random() * 2 + 1,
+                    hue: Math.random() > 0.3 ? '6, 182, 212' : '99, 102, 241'
+                });
+            }
+
+            function renderScene() {
+                // Smooth Lerp Mouse Parallax
+                mouseX += (targetMouseX - mouseX) * 0.05;
+                mouseY += (targetMouseY - mouseY) * 0.05;
+
+                ctx.fillStyle = 'rgba(3, 7, 18, 0.94)';
+                ctx.fillRect(0, 0, w, h);
+
+                const horizonY = h * 0.45 + mouseY;
+                const vanishingX = w * 0.5 + mouseX;
+
+                // --- 1. AMBIENT NEBULA ORB ---
+                const gradNebula = ctx.createRadialGradient(vanishingX, horizonY, 20, vanishingX, horizonY, Math.max(w, h) * 0.7);
+                gradNebula.addColorStop(0, 'rgba(16, 185, 129, 0.15)');
+                gradNebula.addColorStop(0.4, 'rgba(59, 130, 246, 0.08)');
+                gradNebula.addColorStop(1, 'rgba(3, 7, 18, 0)');
+                ctx.fillStyle = gradNebula;
+                ctx.fillRect(0, 0, w, h);
+
+                // --- 2. 3D MOVING HORIZON PERSPECTIVE GRID ---
+                ctx.save();
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.18)';
+                ctx.lineWidth = 1;
+
+                // Perspective V-Lines radiating from horizon
+                const vLines = 24;
+                for (let i = -vLines; i <= vLines; i++) {
+                    const bottomX = vanishingX + i * (w / 12);
+                    ctx.beginPath();
+                    ctx.moveTo(vanishingX, horizonY);
+                    ctx.lineTo(bottomX, h + 100);
+                    ctx.stroke();
+                }
+
+                // Horizontal speed lines moving downwards
+                gridOffset = (gridOffset + 0.8) % 30;
+                for (let y = 0; y < h - horizonY; y += 15) {
+                    const py = horizonY + Math.pow((y + gridOffset) / (h - horizonY), 1.8) * (h - horizonY);
+                    if (py > horizonY && py <= h) {
+                        const alpha = Math.min(1, (py - horizonY) / 200) * 0.25;
+                        ctx.strokeStyle = `rgba(56, 189, 248, ${alpha})`;
+                        ctx.beginPath();
+                        ctx.moveTo(0, py);
+                        ctx.lineTo(w, py);
+                        ctx.stroke();
+                    }
+                }
+                ctx.restore();
+
+                // --- 3. SWEEPING TACTICAL SCANNER BEAM ---
+                scanY += 1.8;
+                if (scanY > h) scanY = 0;
+                const scanGrad = ctx.createLinearGradient(0, scanY - 30, 0, scanY);
+                scanGrad.addColorStop(0, 'rgba(16, 185, 129, 0)');
+                scanGrad.addColorStop(1, 'rgba(16, 185, 129, 0.25)');
+                ctx.fillStyle = scanGrad;
+                ctx.fillRect(0, scanY - 30, w, 30);
+
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.6)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, scanY);
+                ctx.lineTo(w, scanY);
+                ctx.stroke();
+
+                // --- 4. 3D CONSTELLATION NODE MESH ---
+                const fov = 400;
+                const projected = [];
+
+                particles.forEach((p) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.z += p.vz;
+
+                    if (p.x < -w) p.x = w;
+                    if (p.x > w) p.x = -w;
+                    if (p.y < -h) p.y = h;
+                    if (p.y > h) p.y = -h;
+                    if (p.z < 50) p.z = 900;
+                    if (p.z > 900) p.z = 50;
+
+                    const scale = fov / (fov + p.z);
+                    const sx = (p.x + mouseX * 2) * scale + w / 2;
+                    const sy = (p.y + mouseY * 2) * scale + h / 2;
+                    const radius = Math.max(0.5, p.size * scale);
+                    const alpha = Math.min(1, (1 - p.z / 900) * 0.85);
+
+                    projected.push({ sx, sy, alpha, hue: p.hue, scale });
+
+                    ctx.fillStyle = `rgba(${p.hue}, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(sx, sy, radius * 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Connect nearby projected nodes
+                for (let i = 0; i < projected.length; i++) {
+                    for (let j = i + 1; j < projected.length; j++) {
+                        const p1 = projected[i];
+                        const p2 = projected[j];
+                        const dx = p1.sx - p2.sx;
+                        const dy = p1.sy - p2.sy;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+
+                        if (dist < 110) {
+                            const lineAlpha = (1 - dist / 110) * 0.22 * Math.min(p1.alpha, p2.alpha);
+                            ctx.strokeStyle = `rgba(${p1.hue}, ${lineAlpha})`;
+                            ctx.lineWidth = 0.9;
+                            ctx.beginPath();
+                            ctx.moveTo(p1.sx, p1.sy);
+                            ctx.lineTo(p2.sx, p2.sy);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                requestAnimationFrame(renderScene);
+            }
+            renderScene();
+        })();
+
+        // 3D TACTICAL RADAR CANVAS ANIMATION
+        (function initRadar3D() {
+            const canvas = document.getElementById('radar3d');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let angle = 0;
+
+            const drones = [
+                { angle: 0.8, dist: 35, label: 'D1' },
+                { angle: 2.3, dist: 50, label: 'D2' },
+                { angle: 4.1, dist: 28, label: 'D3' },
+                { angle: 5.5, dist: 42, label: 'D4' },
+                { angle: 3.2, dist: 48, label: 'D5' },
+                { angle: 1.2, dist: 25, label: 'D6' },
+                { angle: 1.5, dist: 20, label: 'C1' }
+            ];
+
+            function drawRadar() {
+                const w = canvas.width;
+                const h = canvas.height;
+                const cx = w / 2;
+                const cy = h / 2;
+                const radius = Math.min(cx, cy) - 10;
+
+                ctx.clearRect(0, 0, w, h);
+
+                // Sonar Rings
+                ctx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
+                ctx.lineWidth = 1.2;
+                [0.3, 0.6, 0.9].forEach(r => {
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, radius * r, 0, Math.PI * 2);
+                    ctx.stroke();
+                });
+
+                // Crosshairs
+                ctx.beginPath();
+                ctx.moveTo(cx - radius, cy); ctx.lineTo(cx + radius, cy);
+                ctx.moveTo(cx, cy - radius); ctx.lineTo(cx, cy + radius);
+                ctx.stroke();
+
+                // Radar Sweep Cone
+                angle += 0.035;
+                const grad = ctx.createRadialGradient(cx, cy, 5, cx, cy, radius);
+                grad.addColorStop(0, 'rgba(16, 185, 129, 0.45)');
+                grad.addColorStop(1, 'rgba(16, 185, 129, 0.05)');
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, radius, angle - 0.45, angle);
+                ctx.closePath();
+                ctx.fillStyle = grad;
+                ctx.fill();
+
+                // Drone Blips
+                drones.forEach(d => {
+                    d.angle += 0.005;
+                    const bx = cx + Math.cos(d.angle) * (radius * (d.dist / 60));
+                    const by = cy + Math.sin(d.angle) * (radius * (d.dist / 60));
+
+                    ctx.fillStyle = d.label.startsWith('C') ? '#ef4444' : '#34d399';
+                    ctx.beginPath();
+                    ctx.arc(bx, by, 3.5, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Glow ring
+                    ctx.strokeStyle = ctx.fillStyle;
+                    ctx.beginPath();
+                    ctx.arc(bx, by, 7, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    // Label
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.font = 'bold 9px "JetBrains Mono"';
+                    ctx.fillText(d.label, bx + 8, by + 3);
+                });
+
+                requestAnimationFrame(drawRadar);
+            }
+            drawRadar();
+        })();
+
+        // FILTER LOGIC
+        function filterVehicles(type) {
+            const tabs = document.querySelectorAll('.cyber-tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            if (event && event.target) event.target.classList.add('active');
+
+            const drones = document.querySelectorAll('.v-card.drone');
+            const cars = document.querySelectorAll('.v-card.car');
+
+            if (type === 'all') {
+                drones.forEach(d => d.style.display = 'block');
+                cars.forEach(c => c.style.display = 'block');
+            } else if (type === 'drone') {
+                drones.forEach(d => d.style.display = 'block');
+                cars.forEach(c => c.style.display = 'none');
+            } else {
+                drones.forEach(d => d.style.display = 'none');
+                cars.forEach(c => c.style.display = 'block');
+            }
+        }
+
+        // DISPATCH LOGIC
+        function dispatchFleetVehicle() {
+            const btn = document.getElementById('ner-dispatch-btn');
+            const originalText = btn.innerText;
+            btn.innerText = "⚡ DISPATCHING 6 DRONES & 3 CARS...";
+            btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+            
+            setTimeout(() => {
+                btn.innerText = "✅ 3D FLEET DISPATCHED & PWA CACHED";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = "";
+                }, 2500);
+            }, 1200);
+        }
+
+        // ROUTE SELECTION
+        let activeRoute = 'nathula';
+        function selectRoute(id) {
+            activeRoute = id;
+            document.querySelectorAll('.route-card').forEach(el => el.classList.remove('active'));
+            const selected = document.getElementById('route-' + id);
+            if (selected) selected.classList.add('active');
+            
+            const progressBox = document.getElementById('ner-precache-progress');
+            if (progressBox) progressBox.style.display = 'none';
+        }
+
+        // PRECACHE SIMULATION
+        async function precacheSelectedRouteTiles() {
+            const btn = document.getElementById('ner-precache-btn');
+            const progressBox = document.getElementById('ner-precache-progress');
+            const bar = document.getElementById('precache-bar-fill');
+            const pct = document.getElementById('precache-percent-text');
+            const status = document.getElementById('precache-status-text');
+
+            if (progressBox) progressBox.style.display = 'block';
+            btn.disabled = true;
+            btn.innerText = "DOWNLOADING TILES...";
+            status.innerText = "CONNECTING TO SATELLITE...";
+
+            let width = 0;
+            const interval = setInterval(() => {
+                width += Math.random() * 14;
+                if (width > 100) width = 100;
+                
+                bar.style.width = width + '%';
+                pct.innerText = Math.floor(width) + '%';
+
+                if (width === 100) {
+                    clearInterval(interval);
+                    status.innerText = "TILES OFFLINE READY";
+                    status.style.color = "var(--neon-green)";
+                    btn.innerText = "✅ MAP TILES SAVED TO PWA";
+                    btn.style.borderColor = "var(--neon-green)";
+                    btn.style.color = "var(--neon-green)";
+                }
+            }, 160);
+        }
+
+        // SERVICE WORKER & PWA LOGIC
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/sw.js', { scope: '/' })
+                    .then(r => console.log('SW Registered'))
+                    .catch(e => console.log('SW Fail', e));
+            });
+        }
+
+        let deferredPrompt;
+        const installContainer = document.getElementById('pwa-install-container');
+        const installBtn = document.getElementById('pwa-install-btn');
+        const laterBtn = document.getElementById('pwa-later-btn');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            installContainer.classList.add('show');
+        });
+
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt = null; }
+            installContainer.classList.remove('show');
+        });
+        laterBtn.addEventListener('click', () => installContainer.classList.remove('show'));
+
+        // NETWORK STATUS
+        function updateNetworkStatus() {
+            const banner = document.getElementById('sw-offline-banner');
+            if (!navigator.onLine) {
+                banner.style.display = 'block';
+            } else {
+                setTimeout(() => banner.style.display = 'none', 3000);
+            }
+        }
+        window.addEventListener('offline', updateNetworkStatus);
+        window.addEventListener('online', updateNetworkStatus);
+    </script>
+
+    <!-- FLOATING AI COPILOT BOT WIDGET -->
+    <div id="copilot-container" style="position:fixed; bottom:24px; right:24px; z-index:9999; font-family:var(--font-head);">
+        <!-- Copilot Trigger Button -->
+        <button id="copilot-btn" onclick="toggleCopilotChat()" style="background:linear-gradient(135deg, #059669, #10b981); color:#ffffff; border:1.5px solid #34d399; padding:12px 20px; border-radius:30px; font-weight:900; font-size:14px; cursor:pointer; box-shadow:0 8px 25px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px; transition:all 0.3s ease;">
+            <span style="font-size:18px;">🤖</span>
+            <span>AI COPILOT</span>
+            <span style="width:8px; height:8px; background:#34d399; border-radius:50%; display:inline-block; animation:pulse 1.5s infinite;"></span>
+        </button>
+
+        <!-- Copilot Interactive Chat Modal Card -->
+        <div id="copilot-card" style="display:none; position:absolute; bottom:60px; right:0; width:380px; max-width:90vw; height:480px; background:rgba(11,15,25,0.96); backdrop-filter:blur(25px); border:1.5px solid rgba(16,185,129,0.4); border-radius:18px; box-shadow:0 15px 40px rgba(0,0,0,0.8); flex-direction:column; overflow:hidden;">
+            <!-- Chat Header -->
+            <div style="background:linear-gradient(135deg, #059669, #047857); padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:22px;">🤖</span>
+                    <div>
+                        <div style="font-weight:900; font-size:14px; color:#ffffff;">NER AI LOGISTICS COPILOT</div>
+                        <div style="font-size:10px; color:#a7f3d0; font-family:var(--font-data);">MDoNER Autonomous Dispatch Assistant</div>
+                    </div>
+                </div>
+                <button onclick="toggleCopilotChat()" style="background:none; border:none; color:#ffffff; font-size:22px; cursor:pointer;">&times;</button>
+            </div>
+
+            <!-- Quick Action Suggestion Chips -->
+            <div style="padding:8px 12px; background:rgba(15,23,42,0.6); border-bottom:1px solid rgba(255,255,255,0.08); display:flex; gap:6px; overflow-x:auto;">
+                <button onclick="sendQuickCopilotQuery('Vaccine Convoy Status')" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:10px; font-weight:bold; padding:4px 10px; border-radius:12px; white-space:nowrap; cursor:pointer;">🚚 Vaccine Status</button>
+                <button onclick="sendQuickCopilotQuery('Oxygen Tanker Cold Chain')" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:10px; font-weight:bold; padding:4px 10px; border-radius:12px; white-space:nowrap; cursor:pointer;">❄️ Oxygen Temp</button>
+                <button onclick="sendQuickCopilotQuery('Shortest Route Savings')" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:10px; font-weight:bold; padding:4px 10px; border-radius:12px; white-space:nowrap; cursor:pointer;">🔀 Shortest Routes</button>
+                <button onclick="sendQuickCopilotQuery('Weather Radar')" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; font-size:10px; font-weight:bold; padding:4px 10px; border-radius:12px; white-space:nowrap; cursor:pointer;">🌧️ Weather Pass</button>
+            </div>
+
+            <!-- Chat Messages Log Area -->
+            <div id="copilot-messages" style="flex:1; padding:14px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; font-size:12px; font-family:var(--font-data);">
+                <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:10px; color:#e2e8f0;">
+                    🤖 <strong>AI Copilot:</strong> Greetings Commander! I am monitoring 5 Northeast emergency convoys, GIS radars, and mountain pass routes. Ask me anything about convoy telemetry, shortest routes, or weather advisories!
+                </div>
+            </div>
+
+            <!-- Chat Input Controls -->
+            <div style="padding:10px; background:rgba(15,23,42,0.9); border-top:1px solid rgba(255,255,255,0.08); display:flex; gap:8px;">
+                <input id="copilot-input" type="text" placeholder="Ask AI Copilot..." onkeypress="handleCopilotKeyPress(event)" style="flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#ffffff; padding:8px 12px; border-radius:10px; font-size:12px; outline:none;" />
+                <button onclick="sendCopilotMessage()" style="background:linear-gradient(135deg, #059669, #10b981); color:#ffffff; border:none; padding:8px 14px; border-radius:10px; font-weight:bold; cursor:pointer; font-size:12px;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI COPILOT ENGINE SCRIPT -->
+    <script>
+        function toggleCopilotChat() {
+            const card = document.getElementById('copilot-card');
+            if (card.style.display === 'none' || !card.style.display) {
+                card.style.display = 'flex';
+                document.getElementById('copilot-input').focus();
+            } else {
+                card.style.display = 'none';
+            }
+        }
+
+        function sendQuickCopilotQuery(query) {
+            document.getElementById('copilot-input').value = query;
+            sendCopilotMessage();
+        }
+
+        function handleCopilotKeyPress(e) {
+            if (e.key === 'Enter') sendCopilotMessage();
+        }
+
+        function sendCopilotMessage() {
+            const input = document.getElementById('copilot-input');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const msgBox = document.getElementById('copilot-messages');
+            
+            // Render User Message
+            const userDiv = document.createElement('div');
+            userDiv.style.cssText = 'background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:8px 12px; color:#ffffff; align-self:flex-end; max-width:85%;';
+            userDiv.innerHTML = `👤 <strong>You:</strong> ${text}`;
+            msgBox.appendChild(userDiv);
+
+            input.value = '';
+            msgBox.scrollTop = msgBox.scrollHeight;
+
+            // Generate AI Response
+            setTimeout(() => {
+                const responseText = getCopilotAIResponse(text);
+                const aiDiv = document.createElement('div');
+                aiDiv.style.cssText = 'background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:10px; color:#e2e8f0; align-self:flex-start; max-width:90%;';
+                aiDiv.innerHTML = `🤖 <strong>AI Copilot:</strong> ${responseText}`;
+                msgBox.appendChild(aiDiv);
+                msgBox.scrollTop = msgBox.scrollHeight;
+
+                // Voice Readback of AI Response
+                if (typeof speakText === 'function') {
+                    speakText(responseText.replace(/<[^>]*>?/gm, ''));
+                }
+            }, 600);
+        }
+
+        function getCopilotAIResponse(query) {
+            const q = query.toLowerCase();
+            if (q.includes('vaccine') || q.includes('9082') || q.includes('guwahati')) {
+                return '🚚 <strong>Assam Medical Transport Hub (AS-01-EC-9082)</strong> is ON ROUTE to NEIGRIHMS Shillong carrying 5,000 Vaccine Doses. Speed: 46 km/h. Cold Chain: 4.1°C (Optimal). <strong>Shortest Route B (GS Road Direct) auto-selected, saving 14.8 km!</strong>';
+            } else if (q.includes('oxygen') || q.includes('4011') || q.includes('temp')) {
+                return '❄️ <strong>Northeast Medical Oxygen Supply (AS-01-OX-4011)</strong> is carrying 18T Liquid Oxygen at <strong>-182.4°C Cryogenic State</strong>. Speed: 54 km/h. ETA to GMCH Guwahati: 2h 10m via Shortest Route B (saves 23.4 km).';
+            } else if (q.includes('food') || q.includes('grain') || q.includes('7721') || q.includes('fci')) {
+                return '🌾 <strong>FCI Commodities Transport (NL-01-FC-7721)</strong> carrying 24T food grains is ON ROUTE to Imphal FCI Warehouse via Maram-Senapati Cutoff (Shortest Route B, saves 17.8 km). Status: MEDIUM RISK due to steep pass.';
+            } else if (q.includes('solar') || q.includes('tripura') || q.includes('3019')) {
+                return '☀️ <strong>Tripura Infrastructure Freight (TR-01-GC-3019)</strong> carrying solar micro-grid cargo is ON ROUTE to Agartala Park at 52 km/h. Shortest Route B (Dharmanagar Express) auto-selected.';
+            } else if (q.includes('petroleum') || q.includes('oil') || q.includes('8834')) {
+                return '⛽ <strong>Indian Oil Energy Carrier (AS-09-PL-8834)</strong> carrying 20 KL Petroleum Fuel is ON ROUTE to Itanagar Depot at 58 km/h. ETA: 3h 15m via Harmuti Express Corridor.';
+            } else if (q.includes('shortest') || q.includes('route') || q.includes('saving')) {
+                return '🔀 <strong>Multi-Route Shortest Engine Active:</strong><br/>• Vaccine Convoy: Saves 14.8 km via GS Road Direct<br/>• Oxygen Tanker: Saves 23.4 km via Kaziranga Express<br/>• Food Grains: Saves 17.8 km via Maram Cutoff<br/>• Solar Freight: Saves 23.2 km via Dharmanagar Route<br/>• Fuel Tanker: Saves 18.5 km via Harmuti Corridor.';
+            } else if (q.includes('weather') || q.includes('pass') || q.includes('radar')) {
+                return '🌧️ <strong>GIS Weather & Pass Radar:</strong> Nathu La Pass (14,140 ft) clear. Sela Pass (13,700 ft) experiencing heavy fog; FLIR SAR Drone NER-DRONE-02 active on ridge patrol.';
+            } else {
+                return `Analysis complete for "${query}". All 11 fleet units (5 logistics trucks + 6 aerial drones) are telemetry-synced and running on optimal shortest routes. How else can I assist?`;
+            }
+        }
+    </script>
+
+</body>
+</html>

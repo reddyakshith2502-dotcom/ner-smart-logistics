@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgSnow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0c1a2b"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="snowBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0369a1"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="450" fill="url(#bgSnow)"/>
+  
+  <!-- Snow ground -->
+  <path d="M 0 360 Q 400 340 800 360 L 800 450 L 0 450 Z" fill="#e2e8f0" opacity="0.9"/>
+  
+  <!-- Snow Crawler Chassis & Cab -->
+  <path d="M 160 210 L 300 210 L 380 160 L 580 160 L 600 220 L 620 310 L 160 310 Z" fill="url(#snowBody)" stroke="#38bdf8" stroke-width="2"/>
+  <polygon points="300,210 375,165 570,165 585,210" fill="#0f172a" stroke="#38bdf8" stroke-width="2"/>
+  
+  <text x="440" y="250" font-family="sans-serif" font-weight="bold" font-size="20" fill="#ffffff" text-anchor="middle">SNOW CRAWLER</text>
+  <text x="440" y="275" font-family="sans-serif" font-weight="bold" font-size="13" fill="#bae6fd" text-anchor="middle">TAWANG BASE WINCH &amp; CHAINS</text>
+  
+  <!-- Headlights -->
+  <circle cx="165" cy="235" r="8" fill="#ffffff" filter="url(#glow)"/>
+  <circle cx="165" cy="255" r="8" fill="#38bdf8" filter="url(#glow)"/>
+  
+  <!-- Heavy Tank Treads / Track Wheels -->
+  <!-- Left Tread System -->
+  <rect x="180" y="300" width="180" height="50" rx="15" fill="#0f172a" stroke="#475569" stroke-width="4"/>
+  <circle cx="210" cy="325" r="16" fill="#334155"/>
+  <circle cx="270" cy="325" r="16" fill="#334155"/>
+  <circle cx="330" cy="325" r="16" fill="#334155"/>
+
+  <!-- Right Tread System -->
+  <rect x="420" y="300" width="180" height="50" rx="15" fill="#0f172a" stroke="#475569" stroke-width="4"/>
+  <circle cx="450" cy="325" r="16" fill="#334155"/>
+  <circle cx="510" cy="325" r="16" fill="#334155"/>
+  <circle cx="570" cy="325" r="16" fill="#334155"/>
+</svg>

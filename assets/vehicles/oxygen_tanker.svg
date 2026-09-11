@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgO2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="whiteTanker" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="70%" stop-color="#e2e8f0"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="450" fill="url(#bgO2)"/>
+  <path d="M 50 380 Q 400 370 750 380 L 750 450 L 50 450 Z" fill="#0b1329"/>
+  
+  <!-- Truck Cab -->
+  <path d="M 120 220 L 220 220 L 280 175 L 380 175 L 400 240 L 400 330 L 120 330 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="2"/>
+  <polygon points="220,220 275,180 370,180 385,220" fill="#0f172a" stroke="#38bdf8" stroke-width="1.5"/>
+  
+  <!-- Cryogenic Oxygen Tanker Cylinder -->
+  <rect x="390" y="165" width="320" height="155" rx="45" fill="url(#whiteTanker)" stroke="#38bdf8" stroke-width="3"/>
+  <rect x="420" y="215" width="260" height="55" rx="8" fill="#0284c7"/>
+  <text x="550" y="248" font-family="sans-serif" font-weight="bold" font-size="20" fill="#ffffff" text-anchor="middle">LIQUID MEDICAL OXYGEN</text>
+  <text x="550" y="292" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0284c7" text-anchor="middle">❄️ CRYOGENIC COLD CHAIN: -182.4°C (18T)</text>
+  
+  <!-- Wheels -->
+  <circle cx="200" cy="335" r="45" fill="#0f172a" stroke="#38bdf8" stroke-width="4"/>
+  <circle cx="200" cy="335" r="24" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+  
+  <circle cx="470" cy="335" r="45" fill="#0f172a" stroke="#38bdf8" stroke-width="4"/>
+  <circle cx="470" cy="335" r="24" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+
+  <circle cx="580" cy="335" r="45" fill="#0f172a" stroke="#38bdf8" stroke-width="4"/>
+  <circle cx="580" cy="335" r="24" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+
+  <circle cx="670" cy="335" r="45" fill="#0f172a" stroke="#38bdf8" stroke-width="4"/>
+  <circle cx="670" cy="335" r="24" fill="#0284c7" stroke="#ffffff" stroke-width="2"/>
+</svg>

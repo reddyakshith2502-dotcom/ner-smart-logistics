@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgDrone" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b1329"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="450" fill="url(#bgDrone)"/>
+  
+  <!-- Central Drone Body -->
+  <rect x="320" y="190" width="160" height="80" rx="16" fill="#1e293b" stroke="#38bdf8" stroke-width="3"/>
+  <rect x="350" y="270" width="100" height="50" rx="6" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
+  
+  <!-- Red Cross on Medical Box -->
+  <rect x="390" y="280" width="20" height="30" fill="#ffffff"/>
+  <rect x="385" y="285" width="30" height="20" fill="#ffffff"/>
+  
+  <text x="400" y="235" font-family="sans-serif" font-weight="bold" font-size="16" fill="#ffffff" text-anchor="middle">VTOL MEDICAL</text>
+  <text x="400" y="255" font-family="sans-serif" font-weight="bold" font-size="12" fill="#38bdf8" text-anchor="middle">SKYLIFTER UNIT-01</text>
+  
+  <!-- Arms and Rotors -->
+  <!-- Left Rotors -->
+  <line x1="320" y1="210" x2="160" y2="140" stroke="#64748b" stroke-width="6"/>
+  <ellipse cx="160" cy="140" rx="80" ry="14" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="2" filter="url(#glow)"/>
+  <circle cx="160" cy="140" r="10" fill="#0f172a"/>
+
+  <line x1="320" y1="250" x2="160" y2="300" stroke="#64748b" stroke-width="6"/>
+  <ellipse cx="160" cy="300" rx="80" ry="14" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="2" filter="url(#glow)"/>
+  <circle cx="160" cy="300" r="10" fill="#0f172a"/>
+
+  <!-- Right Rotors -->
+  <line x1="480" y1="210" x2="640" y2="140" stroke="#64748b" stroke-width="6"/>
+  <ellipse cx="640" cy="140" rx="80" ry="14" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="2" filter="url(#glow)"/>
+  <circle cx="640" cy="140" r="10" fill="#0f172a"/>
+
+  <line x1="480" y1="250" x2="640" y2="300" stroke="#64748b" stroke-width="6"/>
+  <ellipse cx="640" cy="300" rx="80" ry="14" fill="rgba(56, 189, 248, 0.25)" stroke="#38bdf8" stroke-width="2" filter="url(#glow)"/>
+  <circle cx="640" cy="300" r="10" fill="#0f172a"/>
+</svg>

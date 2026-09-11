@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="truckBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#334155"/>
+      <stop offset="50%" stop-color="#475569"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="orangeAccent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f97316"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="url(#bg)"/>
+  
+  <!-- Terrain shadow -->
+  <ellipse cx="400" cy="380" rx="340" ry="30" fill="rgba(0,0,0,0.6)"/>
+  <path d="M 50 380 Q 400 370 750 380 L 750 450 L 50 450 Z" fill="#0b1329"/>
+  
+  <!-- Truck Chassis & Body -->
+  <!-- Cab -->
+  <path d="M 120 230 L 220 230 L 290 180 L 420 180 L 440 240 L 440 330 L 120 330 Z" fill="url(#truckBody)" stroke="#64748b" stroke-width="2"/>
+  <!-- Front Hood & Windshield -->
+  <polygon points="220,230 285,185 410,185 425,230" fill="#0f172a" stroke="#38bdf8" stroke-width="2" opacity="0.9"/>
+  
+  <!-- Rear Cargo Box -->
+  <rect x="430" y="160" width="260" height="170" rx="8" fill="#1e293b" stroke="#f97316" stroke-width="3"/>
+  <rect x="450" y="180" width="220" height="130" fill="#0f172a" rx="4"/>
+  <text x="560" y="240" font-family="sans-serif" font-weight="bold" font-size="22" fill="#f97316" text-anchor="middle" letter-spacing="2">RESCUE 4X4</text>
+  <text x="560" y="270" font-family="sans-serif" font-weight="bold" font-size="14" fill="#94a3b8" text-anchor="middle">EVACUATION UNIT</text>
+  
+  <!-- Orange Stripe -->
+  <rect x="120" y="275" width="570" height="14" fill="url(#orangeAccent)"/>
+  
+  <!-- Headlights -->
+  <polygon points="120,240 120,270 135,270 135,240" fill="#38bdf8" filter="url(#glow)"/>
+  <circle cx="128" cy="255" r="6" fill="#ffffff" filter="url(#glow)"/>
+  
+  <!-- Rooftop Lights & Rack -->
+  <rect x="290" y="168" width="120" height="12" fill="#334155" rx="3"/>
+  <circle cx="310" cy="174" r="4" fill="#f97316" filter="url(#glow)"/>
+  <circle cx="350" cy="174" r="4" fill="#38bdf8" filter="url(#glow)"/>
+  <circle cx="390" cy="174" r="4" fill="#f97316" filter="url(#glow)"/>
+  
+  <!-- Heavy Off-road Wheels -->
+  <circle cx="210" cy="335" r="50" fill="#0f172a" stroke="#475569" stroke-width="6"/>
+  <circle cx="210" cy="335" r="28" fill="#334155" stroke="#94a3b8" stroke-width="3"/>
+  <circle cx="210" cy="335" r="10" fill="#f97316"/>
+
+  <circle cx="360" cy="335" r="50" fill="#0f172a" stroke="#475569" stroke-width="6"/>
+  <circle cx="360" cy="335" r="28" fill="#334155" stroke="#94a3b8" stroke-width="3"/>
+  <circle cx="360" cy="335" r="10" fill="#f97316"/>
+
+  <circle cx="530" cy="335" r="50" fill="#0f172a" stroke="#475569" stroke-width="6"/>
+  <circle cx="530" cy="335" r="28" fill="#334155" stroke="#94a3b8" stroke-width="3"/>
+  <circle cx="530" cy="335" r="10" fill="#f97316"/>
+
+  <circle cx="640" cy="335" r="50" fill="#0f172a" stroke="#475569" stroke-width="6"/>
+  <circle cx="640" cy="335" r="28" fill="#334155" stroke="#94a3b8" stroke-width="3"/>
+  <circle cx="640" cy="335" r="10" fill="#f97316"/>
+</svg>

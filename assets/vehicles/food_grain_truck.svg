@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgFci" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#78350f"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="fciBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="800" height="450" fill="url(#bgFci)"/>
+  <path d="M 50 380 Q 400 370 750 380 L 750 450 L 50 450 Z" fill="#0c1322"/>
+  
+  <!-- Truck Cab -->
+  <path d="M 120 220 L 220 220 L 280 175 L 390 175 L 410 240 L 410 330 L 120 330 Z" fill="url(#fciBody)" stroke="#f59e0b" stroke-width="2"/>
+  <polygon points="220,220 275,180 380,180 395,220" fill="#0f172a" stroke="#f59e0b" stroke-width="1.5"/>
+  
+  <!-- Cargo Container Box -->
+  <rect x="420" y="150" width="300" height="180" rx="8" fill="#451a03" stroke="#f59e0b" stroke-width="3"/>
+  <rect x="440" y="170" width="260" height="140" fill="#78350f" rx="4"/>
+  <text x="570" y="235" font-family="sans-serif" font-weight="bold" font-size="20" fill="#fef3c7" text-anchor="middle">FCI FOOD GRAINS (24T)</text>
+  <text x="570" y="265" font-family="sans-serif" font-weight="bold" font-size="13" fill="#fbbf24" text-anchor="middle">ESSENTIAL COMMODITIES TRANSPORT</text>
+  
+  <!-- Amber Stripe -->
+  <rect x="120" y="275" width="600" height="12" fill="#f59e0b"/>
+  
+  <!-- Heavy Offroad Wheels -->
+  <circle cx="210" cy="335" r="45" fill="#0f172a" stroke="#f59e0b" stroke-width="4"/>
+  <circle cx="210" cy="335" r="24" fill="#78350f" stroke="#ffffff" stroke-width="2"/>
+  
+  <circle cx="530" cy="335" r="45" fill="#0f172a" stroke="#f59e0b" stroke-width="4"/>
+  <circle cx="530" cy="335" r="24" fill="#78350f" stroke="#ffffff" stroke-width="2"/>
+
+  <circle cx="630" cy="335" r="45" fill="#0f172a" stroke="#f59e0b" stroke-width="4"/>
+  <circle cx="630" cy="335" r="24" fill="#78350f" stroke="#ffffff" stroke-width="2"/>
+</svg>

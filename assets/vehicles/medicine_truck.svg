@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgMedTruck" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="800" height="450" fill="url(#bgMedTruck)"/>
+  <path d="M 50 380 Q 400 370 750 380 L 750 450 L 50 450 Z" fill="#021f17"/>
+  
+  <!-- Truck Cab -->
+  <path d="M 120 220 L 220 220 L 280 175 L 400 175 L 420 240 L 420 330 L 120 330 Z" fill="#ffffff" stroke="#10b981" stroke-width="2"/>
+  <polygon points="220,220 275,180 390,180 405,220" fill="#064e3b" stroke="#10b981" stroke-width="1.5"/>
+  
+  <!-- Refrigerated Box -->
+  <rect x="410" y="150" width="300" height="180" rx="8" fill="#f8fafc" stroke="#10b981" stroke-width="4"/>
+  
+  <!-- Red Cross / Medicine symbol -->
+  <rect x="545" y="180" width="30" height="70" fill="#ef4444" rx="4"/>
+  <rect x="525" y="200" width="70" height="30" fill="#ef4444" rx="4"/>
+  
+  <text x="560" y="280" font-family="sans-serif" font-weight="bold" font-size="20" fill="#065f46" text-anchor="middle">CRITICAL MEDICINE</text>
+  <text x="560" y="305" font-family="sans-serif" font-weight="bold" font-size="13" fill="#10b981" text-anchor="middle">❄️ REFRIGERATED COLD-CHAIN</text>
+  
+  <!-- Green Stripe -->
+  <rect x="120" y="275" width="590" height="12" fill="#10b981"/>
+  
+  <!-- Wheels -->
+  <circle cx="210" cy="335" r="45" fill="#022c22" stroke="#10b981" stroke-width="4"/>
+  <circle cx="210" cy="335" r="24" fill="#065f46" stroke="#ffffff" stroke-width="2"/>
+  
+  <circle cx="530" cy="335" r="45" fill="#022c22" stroke="#10b981" stroke-width="4"/>
+  <circle cx="530" cy="335" r="24" fill="#065f46" stroke="#ffffff" stroke-width="2"/>
+
+  <circle cx="630" cy="335" r="45" fill="#022c22" stroke="#10b981" stroke-width="4"/>
+  <circle cx="630" cy="335" r="24" fill="#065f46" stroke="#ffffff" stroke-width="2"/>
+</svg>

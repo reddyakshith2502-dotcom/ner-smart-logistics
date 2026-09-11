@@ -1,0 +1,18 @@
+{
+  "name": "NER Smart Logistics - Rescue Driver Console",
+  "short_name": "NER Rescue PWA",
+  "description": "Progressive Web App offline caching allowing rescue drivers to access maps & route telemetry even when mobile networks fail in mountain passes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#2563eb",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
